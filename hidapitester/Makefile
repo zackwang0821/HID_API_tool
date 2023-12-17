@@ -7,8 +7,8 @@
 HIDAPI_DIR ?= ../hidapi
 
 # try to do some autodetecting
-UNAME := $(shell uname -s)
-ARCH := $(shell uname -m)
+UNAME := Windos
+ARCH := x86_64
 
 ifeq "$(UNAME)" "Darwin"
 	OS=macos
@@ -30,7 +30,8 @@ endif
 ifneq ($(wildcard .git-tag),)
 	GIT_TAG_RAW=$(file <.git-tag)
 endif
-GIT_TAG_RAW?=$(strip $(shell git tag 2>&1 | tail -1 | cut -f1 -d' '))
+#GIT_TAG_RAW?=$(strip $(shell git tag 2>&1 | tail -1 | cut -f1 -d' '))
+GIT_TAG_RAW?=v1.0.0
 # deal with case of no git or no git tags, check for presence of "v" (i.e. "v1.93")
 ifneq ($(findstring v,$(GIT_TAG_RAW)), v)
 	GIT_TAG_RAW:="v$(strip $(shell date -r . +'%Y%m%d' ))"
