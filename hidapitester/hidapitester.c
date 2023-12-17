@@ -100,6 +100,7 @@ enum {
     CMD_READ_FEATURE,
     CMD_READ_INPUT_FOREVER,
     CMD_READ_INPUT_REPORT,
+    CMD_INTERFACE,
 };
 
 bool msg_quiet = false;
@@ -186,6 +187,7 @@ int main(int argc, char* argv[])
     uint16_t pid = 0;        // vendorId
     uint16_t usage_page = 0; // usagePage to search for, if any
     uint16_t usage = 0;      // usage to search for, if any
+	int interface = 0;
     wchar_t serial_wstr[MAX_STR/4] = {L'\0'}; // serial number string rto search for, if any
     char devpath[MAX_STR];   // path to open, if filter by usage
     int descriptorMaxLen = HID_API_MAX_REPORT_DESCRIPTOR_SIZE;
@@ -227,6 +229,7 @@ int main(int argc, char* argv[])
          {"read-feature", required_argument, &cmd,   CMD_READ_FEATURE},
          {"read-input-forever",  optional_argument, &cmd,   CMD_READ_INPUT_FOREVER},
          {"get-report-descriptor", no_argument, &cmd, CMD_GET_REPORT_DESCRIPTOR},
+         {"interface",    required_argument, &cmd,   CMD_INTERFACE},
          {NULL,0,0,0}
         };
     char* shortopts = "vht:l:qb:";
@@ -269,6 +272,14 @@ int main(int argc, char* argv[])
                 }
                 msginfo("Set usage to 0x%04hX (%d)\n", usage,usage);
             }
+            else if( cmd == CMD_INTERFACE ) {
+
+                if( (interface = strtol(optarg,NULL,0)) == 0 ) { // if bad parse
+                    sscanf(optarg, "%d", &interface ); // try bare "ABCD"
+                }
+                msginfo("Set interface to %d (%d)\n", interface,interface);
+            }
+
             else if( cmd == CMD_SERIALNUMBER ) {
 
                 swprintf( serial_wstr, sizeof(serial_wstr), L"%s", optarg); // convert to wchar_t*
@@ -283,6 +294,7 @@ int main(int argc, char* argv[])
                 while (cur_dev) {
                     if( (!usage_page || cur_dev->usage_page == usage_page) &&
                         (!usage || cur_dev->usage == usage) &&
+                        (cur_dev->interface_number == interface) &&
                         (serial_wstr[0]==L'\0' || wcscmp(cur_dev->serial_number, serial_wstr)==0) ) {
                         if( cmd == CMD_LIST_USAGES ) {
                             printf("%04X/%04X / %04hX/%04hX  %ls - %ls\n",
@@ -328,6 +340,7 @@ int main(int argc, char* argv[])
                             (!pid || cur_dev->product_id == pid) &&
                             (!usage_page || cur_dev->usage_page == usage_page) &&
                             (!usage || cur_dev->usage == usage) &&
+						    (cur_dev->interface_number == interface) &&
                             (serial_wstr[0]==L'\0' || wcscmp(cur_dev->serial_number, serial_wstr)==0) ) {
                             strncpy(devpath, cur_dev->path, MAX_STR); // save it!
                         }
