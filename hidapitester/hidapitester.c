@@ -340,7 +340,7 @@ int main(int argc, char* argv[])
                             (!pid || cur_dev->product_id == pid) &&
                             (!usage_page || cur_dev->usage_page == usage_page) &&
                             (!usage || cur_dev->usage == usage) &&
-						    (cur_dev->interface_number == interface) &&
+                            (cur_dev->interface_number == interface) &&
                             (serial_wstr[0]==L'\0' || wcscmp(cur_dev->serial_number, serial_wstr)==0) ) {
                             strncpy(devpath, cur_dev->path, MAX_STR); // save it!
                         }
